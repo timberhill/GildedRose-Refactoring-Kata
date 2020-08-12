@@ -4,58 +4,29 @@ class GildedRose(object):
 
     def __init__(self, items):
         self.items = items
-    
 
-    def _validate_items(self):
+        self.special_items = {
+            "inverse"   : ("Aged Brie",),
+            "legendary" : ("Sulfuras",),
+            "pass"      : ("Backstage",),
+            "conjured"  : ("Conjured",),
+        }
+
+
+    def _get_special_function(self, item):
         """
-        Forces all item qualities to 0..50 range
+        Returns an appropriate quality degradation function based on the item name.
         """
-        for item in self.items:
-            if item.quality < 0:
-                item.quality = 0
-            elif item.quality > 50:
-                item.quality = 50
-
-
-    def _update_quality_default(self, item):
-        item.sell_by -= 1
-
-        if item.sell_by >= 0:
-            item.quality -= 1
+        if item.name.startswith(self.special_items["inverse"]):
+            return self._update_quality_inverse
+        elif item.name.startswith(self.special_items["legendary"]):
+            return self._update_quality_legendary
+        elif item.name.startswith(self.special_items["pass"]):
+            return self._update_quality_pass
+        elif item.name.startswith(self.special_items["conjured"]):
+            return self._update_quality_conjured
         else:
-            item.quality -= 2
-
-
-    def _update_quality_inverse(self, item):
-        item.sell_by -= 1
-        item.quality += 1
-
-
-    def _update_quality_legendary(self, item):
-        item.quality = 80
-
-
-    def _update_quality_pass(self, item):
-        item.sell_by -= 1
-
-        if item.sell_by > 10:
-            item.quality += 1
-        elif item.sell_by <= 10 and item.sell_by > 5:
-            item.quality += 2
-        elif item.sell_by <= 5 and item.sell_by >= 0:
-            item.quality += 3
-        else:
-            item.quality = 0
-
-
-    def _update_quality_conjured(self, item):
-        item.sell_by -= 1
-
-        if item.sell_by >= 0:
-            item.quality -= 2
-        else:
-            item.quality -= 4
-
+            return self._update_quality_default
 
 
     def update_quality(self):
@@ -87,6 +58,62 @@ class GildedRose(object):
                 else:
                     if item.quality < 50:
                         item.quality = item.quality + 1
+
+
+    def _validate_item(self, r=(0, 50)):
+        """
+        Forces an item quality to a range <r>
+        """
+        for item in self.items:
+            if item.quality < r[0]:
+                item.quality = r[0]
+            elif item.quality > r[1]:
+                item.quality = r[1]
+
+
+    def _update_quality_default(self, item):
+        item.sell_by -= 1
+
+        if item.sell_by >= 0:
+            item.quality -= 1
+        else:
+            item.quality -= 2
+        
+        self._validate_item(item)
+
+
+    def _update_quality_inverse(self, item):
+        item.sell_by -= 1
+        item.quality += 1
+        self._validate_item(item)
+
+
+    def _update_quality_legendary(self, item):
+        item.quality = 80
+
+
+    def _update_quality_pass(self, item):
+        item.sell_by -= 1
+
+        if item.sell_by > 10:
+            item.quality += 1
+        elif item.sell_by <= 10 and item.sell_by > 5:
+            item.quality += 2
+        elif item.sell_by <= 5 and item.sell_by >= 0:
+            item.quality += 3
+        
+        self._validate_item(item)
+
+
+    def _update_quality_conjured(self, item):
+        item.sell_by -= 1
+
+        if item.sell_by >= 0:
+            item.quality -= 2
+        else:
+            item.quality -= 4
+        
+        self._validate_item(item)
 
 
 class Item:

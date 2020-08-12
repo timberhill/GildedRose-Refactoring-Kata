@@ -31,7 +31,7 @@ class GildedRoseTest(unittest.TestCase):
         ])
         gilded_rose.update_quality()
         gilded_rose.update_quality()
-        self.assertEqual(0, gilded_rose.items[0].quality)
+        self.assertEqual(2, gilded_rose.items[0].quality)
         self.assertEqual(0, gilded_rose.items[0].sell_in)
 
 

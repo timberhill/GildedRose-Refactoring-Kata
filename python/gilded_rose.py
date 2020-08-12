@@ -13,7 +13,7 @@ class GildedRose(object):
         }
 
 
-    def _get_special_function(self, item):
+    def _special_function(self, item):
         """
         Returns an appropriate quality degradation function based on the item name.
         """
@@ -31,50 +31,24 @@ class GildedRose(object):
 
     def update_quality(self):
         for item in self.items:
-            if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert":
-                if item.quality > 0:
-                    if item.name != "Sulfuras, Hand of Ragnaros":
-                        item.quality = item.quality - 1
-            else:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
-                    if item.name == "Backstage passes to a TAFKAL80ETC concert":
-                        if item.sell_in < 11:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-                        if item.sell_in < 6:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-            if item.name != "Sulfuras, Hand of Ragnaros":
-                item.sell_in = item.sell_in - 1
-            if item.sell_in < 0:
-                if item.name != "Aged Brie":
-                    if item.name != "Backstage passes to a TAFKAL80ETC concert":
-                        if item.quality > 0:
-                            if item.name != "Sulfuras, Hand of Ragnaros":
-                                item.quality = item.quality - 1
-                    else:
-                        item.quality = item.quality - item.quality
-                else:
-                    if item.quality < 50:
-                        item.quality = item.quality + 1
+            update = self._special_function(item)
+            update(item)
 
 
-    def _validate_item(self, r=(0, 50)):
+    def _validate_item(self, item):
         """
-        Forces an item quality to a range <r>
+        Forces an item quality to 0..50 range
         """
-        for item in self.items:
-            if item.quality < r[0]:
-                item.quality = r[0]
-            elif item.quality > r[1]:
-                item.quality = r[1]
+        if item.quality < 0:
+            item.quality = 0
+        elif item.quality > 50:
+            item.quality = 50
 
 
     def _update_quality_default(self, item):
-        item.sell_by -= 1
+        item.sell_in -= 1
 
-        if item.sell_by >= 0:
+        if item.sell_in >= 0:
             item.quality -= 1
         else:
             item.quality -= 2
@@ -83,7 +57,7 @@ class GildedRose(object):
 
 
     def _update_quality_inverse(self, item):
-        item.sell_by -= 1
+        item.sell_in -= 1
         item.quality += 1
         self._validate_item(item)
 
@@ -93,22 +67,22 @@ class GildedRose(object):
 
 
     def _update_quality_pass(self, item):
-        item.sell_by -= 1
+        item.sell_in -= 1
 
-        if item.sell_by > 10:
+        if item.sell_in > 10:
             item.quality += 1
-        elif item.sell_by <= 10 and item.sell_by > 5:
+        elif item.sell_in <= 10 and item.sell_in > 5:
             item.quality += 2
-        elif item.sell_by <= 5 and item.sell_by >= 0:
+        elif item.sell_in <= 5 and item.sell_in >= 0:
             item.quality += 3
         
         self._validate_item(item)
 
 
     def _update_quality_conjured(self, item):
-        item.sell_by -= 1
+        item.sell_in -= 1
 
-        if item.sell_by >= 0:
+        if item.sell_in >= 0:
             item.quality -= 2
         else:
             item.quality -= 4

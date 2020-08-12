@@ -4,6 +4,59 @@ class GildedRose(object):
 
     def __init__(self, items):
         self.items = items
+    
+
+    def _validate_items(self):
+        """
+        Forces all item qualities to 0..50 range
+        """
+        for item in self.items:
+            if item.quality < 0:
+                item.quality = 0
+            elif item.quality > 50:
+                item.quality = 50
+
+
+    def _update_quality_default(self, item):
+        item.sell_by -= 1
+
+        if item.sell_by >= 0:
+            item.quality -= 1
+        else:
+            item.quality -= 2
+
+
+    def _update_quality_inverse(self, item):
+        item.sell_by -= 1
+        item.quality += 1
+
+
+    def _update_quality_legendary(self, item):
+        item.quality = 80
+
+
+    def _update_quality_pass(self, item):
+        item.sell_by -= 1
+
+        if item.sell_by > 10:
+            item.quality += 1
+        elif item.sell_by <= 10 and item.sell_by > 5:
+            item.quality += 2
+        elif item.sell_by <= 5 and item.sell_by >= 0:
+            item.quality += 3
+        else:
+            item.quality = 0
+
+
+    def _update_quality_conjured(self, item):
+        item.sell_by -= 1
+
+        if item.sell_by >= 0:
+            item.quality -= 2
+        else:
+            item.quality -= 4
+
+
 
     def update_quality(self):
         for item in self.items:
